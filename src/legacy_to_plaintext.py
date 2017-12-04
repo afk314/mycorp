@@ -29,7 +29,7 @@ def to_plaintext(filename):
             else:
                 output += "\n"+t+"\n"
     output = output.replace("\n\n\n","\n\n")
-    return output
+    return output.lower()
 
 
 def get_title(node, type):
