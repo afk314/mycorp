@@ -6,13 +6,13 @@ IN_PATH = str(os.environ["HW_XML_MCS"])
 
 
 # Delete previous run
-# for the_file in os.listdir(TEXT_DIR):
-#     file_path = os.path.join(TEXT_DIR, the_file)
-#     try:
-#         if os.path.isfile(file_path):
-#             os.unlink(file_path)
-#     except Exception as e:
-#         print(e)
+for the_file in os.listdir(TEXT_DIR):
+    file_path = os.path.join(TEXT_DIR, the_file)
+    try:
+        if os.path.isfile(file_path):
+            os.unlink(file_path)
+    except Exception as e:
+        print(e)
 
 
 def getXmlFiles(path):

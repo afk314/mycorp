@@ -20,17 +20,14 @@ def to_plaintext(filename):
         st = section.find("h2", class_="HwSectionTitle")
         if (st is not None):
             stt = " ".join(st.text.split())
-            output += stt+"\n"
-            #print(stt + "\n")
+            output += stt+"\n\n"
         for p in section.findAll(["p", "li"]):
             t = " ".join(p.text.split())
 
             if (p.name == 'li'):
                 output += "* " + t
-                #print("* " + t)
             else:
                 output += t+"\n"
-                #print(t+"\n")
     return output
 
 
@@ -56,4 +53,9 @@ def remove_gotoweb(node):
 
 
 
+def make_one():
+    file = "/home/akimball/dev/content/mcs/11.5/xml/ad14/05/ad1405.xml"
+    result = to_plaintext(file)
+    print(result)
 
+make_one()
