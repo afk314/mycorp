@@ -1,7 +1,7 @@
 import os
 from legacy_to_plaintext import to_plaintext
 
-TEXT_DIR = 'output/'
+TEXT_DIR = '../output/'
 IN_PATH = str(os.environ["HW_XML_MCS"])
 
 
@@ -21,7 +21,7 @@ def getXmlFiles(path):
 
 def simplifyXml(file):
     output = to_plaintext(file)
-    filename = os.path.basename(file);
+    filename = os.path.basename(file)
     name,ext = filename.split('.')
     new_name = name+'.txt'
     with open(TEXT_DIR + new_name, "w") as text_file:
