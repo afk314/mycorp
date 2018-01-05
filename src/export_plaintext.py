@@ -1,4 +1,5 @@
 import os
+import json
 from legacy_to_plaintext import to_plaintext
 
 TEXT_DIR = '../output/'
@@ -27,8 +28,35 @@ def simplifyXml(file):
     with open(TEXT_DIR + new_name, "w") as text_file:
         text_file.write(output)
 
+def asDict(file):
+    line = {}
+    stop_split = file.index('.xml')
+    line["id"] = file[0:stop_split]
+    line["text"] = to_plaintext(file)
+    return line
 
-all_files = getXmlFiles(IN_PATH)
-for file in all_files:
-    simplifyXml(file)
+# Return the asset metadata from evn-cache
+def getMetadata(id):
+    return None
+
+
+def files_to_jsonl(IN_PATH):
+    all_files = getXmlFiles(IN_PATH)
+    all = []
+    count = 0
+    for file in all_files:
+        # simplifyXml(file)
+        r = asDict(file)
+        all.append(r)
+        # if (count > 1000):
+        #     with open('/usr/local/tmp/out.jsonl', 'w') as outfile:
+        #         for entry in all:
+        #             json.dump(entry, outfile)
+        #             outfile.write('\n')
+        #     exit()
+        # count += 1
+    return all
+
+
+
 

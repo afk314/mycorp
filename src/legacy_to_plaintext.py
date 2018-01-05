@@ -24,12 +24,24 @@ def to_plaintext(filename):
         for p in section.findAll(["p", "li"]):
             t = " ".join(p.text.split())
 
-            if (p.name == 'li'):
-                output += "* " + t+"\n"
-            else:
-                output += "\n"+t+"\n"
-    output = output.replace("\n\n\n","\n\n")
+            #if (p.name == 'li'):
+            #    output += "* " + t+"\n"
+            #else:
+            #    output += "\n"+t+"\n"
+    # Strip all returns
+    output = clean_text(output)
+
+    output = output.replace("topic overview", "")
     return output.lower()
+
+
+def clean_text(output):
+    output = output.replace("\n", " ")
+    output = output.replace("\m", " ")
+    output = output.replace("  ", " ")
+    output = output.strip()
+    output = output.rstrip()
+    return output
 
 
 def get_title(node, type):
@@ -45,6 +57,8 @@ def get_title(node, type):
 def remove_rubbish(node):
     remove_comments(node)
     remove_divs(node)
+
+
 
 def remove_comments(node):
     for comments in node.findAll(text=lambda text:isinstance(text, Comment)):
