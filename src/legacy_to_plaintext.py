@@ -11,9 +11,9 @@ def to_plaintext(filename):
     sections = soup.find_all("div", class_="HwNavigationSection")
 
     output += get_title(soup, None)+"\n\n"
-    #clinical = get_title(soup, "Clinical")
-    #if (clinical is not None):
-    #    output += clinical+"\n\n"
+    clinical = get_title(soup, "Clinical")
+    if (clinical is not None):
+       output += clinical+"\n\n"
 
 
     for section in sections:
@@ -24,10 +24,10 @@ def to_plaintext(filename):
         for p in section.findAll(["p", "li"]):
             t = " ".join(p.text.split())
 
-            #if (p.name == 'li'):
-            #    output += "* " + t+"\n"
-            #else:
-            #    output += "\n"+t+"\n"
+            if (p.name == 'li'):
+               output += "* " + t+"\n"
+            else:
+               output += "\n"+t+"\n"
     # Strip all returns
     output = clean_text(output)
 

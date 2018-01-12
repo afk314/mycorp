@@ -1,14 +1,15 @@
 import os
 import json
 from legacy_to_plaintext import to_plaintext
+from evn_api import get_metadata
 
-TEXT_DIR = '../output/'
-IN_PATH = str(os.environ["HW_XML_MCS"])
+SRC_DIR = str(os.environ["HW_XML_MCS"])
+DEST_FILE = '/usr/local/tmp/out.jsonl'
 
 
 # Delete previous run
-for the_file in os.listdir(TEXT_DIR):
-    file_path = os.path.join(TEXT_DIR, the_file)
+for the_file in os.listdir(SRC_DIR):
+    file_path = os.path.join(SRC_DIR, the_file)
     try:
         if os.path.isfile(file_path):
             os.unlink(file_path)
@@ -25,38 +26,69 @@ def simplifyXml(file):
     filename = os.path.basename(file)
     name,ext = filename.split('.')
     new_name = name+'.txt'
-    with open(TEXT_DIR + new_name, "w") as text_file:
+    with open(SRC_DIR + new_name, "w") as text_file:
         text_file.write(output)
 
 def asDict(file):
     line = {}
     stop_split = file.index('.xml')
-    line["id"] = file[0:stop_split]
     line["text"] = to_plaintext(file)
     return line
 
-# Return the asset metadata from evn-cache
-def getMetadata(id):
-    return None
 
 
 def files_to_jsonl(IN_PATH):
     all_files = getXmlFiles(IN_PATH)
-    all = []
-    count = 0
-    for file in all_files:
-        # simplifyXml(file)
-        r = asDict(file)
-        all.append(r)
-        # if (count > 1000):
-        #     with open('/usr/local/tmp/out.jsonl', 'w') as outfile:
-        #         for entry in all:
-        #             json.dump(entry, outfile)
-        #             outfile.write('\n')
-        #     exit()
-        # count += 1
-    return all
+    count = 1
+    stop_at = 300
+    #printProgressBar(0, 15000, prefix='Progress:', suffix='Complete', length=50)
+
+    with open(DEST_FILE, 'w') as outfile:
+
+        for i, file in enumerate(all_files):
+            r = asDict(file)
+
+            head, tail = os.path.split(file)
+            asset_id, ext = tail.split('.')
+            r['id'] = asset_id
+            md = get_metadata(asset_id)
+
+            combined = {**r, **md}
+
+            outfile.write(json.dumps(combined)+'\n')
+            if (count == stop_at):
+                exit()
+            if count % 20 == 0:
+                print('.', end='', flush=True)
+                #printProgressBar(i + 1, 150000, prefix='Progress:', suffix='Complete', length=50)
+
+            count += 1
+
+
+# Print iterations progress
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = '\r')
+    # Print New Line on Complete
+    if iteration == total:
+        print()
 
 
 
-
+if __name__ == "__main__":
+    print("Source dir is: " + SRC_DIR)
+    print("Dest file is: "+DEST_FILE)
+    files_to_jsonl(SRC_DIR)

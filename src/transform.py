@@ -1,9 +1,19 @@
+
+
+
+
+#
+#
+#  DEPRECATED XML
+#
+
+
 import os, nltk
 import lxml.etree as ET
 
 TEXT_DIR = 'output/'
-IN_PATH = "/home/akimball/dev/content/mcs/hwxml/xml"
-OUT_PATH = '/home/akimball/dev/python/projects/first/simplified_content'
+IN_PATH = "/Users/akimball/dev/content/hwxml/xml"
+OUT_PATH = '/Users/akimball/dev/python/projects/first/simplified_content'
 
 xslt= ET.parse('/home/akimball/dev/oxygen/nlp/xslt/strip-prebuilt.xsl')
 transform = ET.XSLT(xslt)
