@@ -1,7 +1,7 @@
 import os
 import json
-from legacy_to_plaintext import to_plaintext
-from evn_api import get_metadata
+import legacy_to_plaintext
+import evn_api
 
 SRC_DIR = str(os.environ["HW_XML_MCS"])
 DEST_FILE = '/usr/local/tmp/out.jsonl'
@@ -32,7 +32,7 @@ def simplifyXml(file):
 def asDict(file):
     line = {}
     stop_split = file.index('.xml')
-    line["text"] = to_plaintext(file)
+    line["text"] = legacy_to_plaintext.to_plaintext(file)
     return line
 
 
@@ -40,7 +40,7 @@ def asDict(file):
 def files_to_jsonl(IN_PATH):
     all_files = getXmlFiles(IN_PATH)
     count = 1
-    stop_at = 300
+    stop_at = 10000
     #printProgressBar(0, 15000, prefix='Progress:', suffix='Complete', length=50)
 
     with open(DEST_FILE, 'w') as outfile:
@@ -51,7 +51,10 @@ def files_to_jsonl(IN_PATH):
             head, tail = os.path.split(file)
             asset_id, ext = tail.split('.')
             r['id'] = asset_id
-            md = get_metadata(asset_id)
+            md = evn_api.get_metadata(asset_id)
+            # if (not md):
+            #     # Skip empties
+            #     continue
 
             combined = {**r, **md}
 

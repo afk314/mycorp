@@ -3,6 +3,7 @@ This module will fetch metadata for a given asset id.  If no metadata exists, an
 """
 import requests
 import json
+import random
 
 evnapi_server = 'hw-en-pcrs-ap01'
 evnapi_port = '8088'
@@ -40,7 +41,10 @@ def concepts_to_int(metadata):
     for concept in metadata['concepts']:
         int_id = int(concept['concept_id'][5:])
         concept_ids.add(int_id)
-    return list(concept_ids)
+    if not concept_ids:
+        return None
+    return random.choice(list(concept_ids))
+    #return list(concept_ids)
 
 
 def categories_to_int(metadata):
@@ -49,14 +53,17 @@ def categories_to_int(metadata):
     for cat in metadata['categories']:
         c = int(cat['id'][3:])
         category_ids.add(c)
-    return list(category_ids)
+    #return list(category_ids)
+    if not category_ids:
+        return None
+    return random.choice(list(category_ids))
 
 
 def genders_to_int(metadata):
     """0 = female, 1 = male, 2 = both"""
-    if (len(metadata['gender']) > 1):
+    if not metadata['gender'] or len(metadata) == 0 or len(metadata['gender']) > 1:
         return 2
-    elif (metadata['gender'][0] == 'male'):
+    elif metadata['gender'][0] == 'male':
         return 1
     else:
         return 0
@@ -64,13 +71,13 @@ def genders_to_int(metadata):
 
 def audience_to_int(metadata):
     """0 = none, 1 = Caregiver, 2 = Parent, 3 = Patient, 4 = many"""
-    if (len(metadata['audience']) == 0):
+    if len(metadata['audience']) == 0:
         return 0
-    elif (len(metadata['audience']) > 1):
+    elif len(metadata['audience']) > 1:
         return 4
-    elif (metadata['audience'][0] == 'Caregiver'):
+    elif metadata['audience'][0] == 'Caregiver':
         return 1
-    elif (metadata['audience'][0] == 'Parent'):
+    elif metadata['audience'][0] == 'Parent':
         return 2
     else:
         return 3
