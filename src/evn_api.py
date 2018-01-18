@@ -43,7 +43,8 @@ def concepts_to_int(metadata):
         concept_ids.add(int_id)
     if not concept_ids:
         return None
-    return random.choice(list(concept_ids))
+    l = list(concept_ids)
+    return l
     #return list(concept_ids)
 
 
@@ -56,7 +57,8 @@ def categories_to_int(metadata):
     #return list(category_ids)
     if not category_ids:
         return None
-    return random.choice(list(category_ids))
+    l = list(category_ids)
+    return l
 
 
 def genders_to_int(metadata):
