@@ -40,7 +40,7 @@ def asDict(file):
 def files_to_jsonl(IN_PATH):
     all_files = getXmlFiles(IN_PATH)
     count = 1
-    stop_at = 10000
+    stop_at = 100000000000
     #printProgressBar(0, 15000, prefix='Progress:', suffix='Complete', length=50)
 
     with open(DEST_FILE, 'w') as outfile:
