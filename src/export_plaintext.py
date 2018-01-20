@@ -1,97 +1,81 @@
+# Python
 import os
 import json
-import legacy_to_plaintext
+import argparse
+
+# Local
+import legacy_to_plaintext as l2p
 import evn_api
 
-SRC_DIR = str(os.environ["HW_XML_MCS"])
-DEST_FILE = '/usr/local/tmp/out.jsonl'
+
+def process_args():
+    global args
+    parser = argparse.ArgumentParser(description='Export HW XML to plain text')
+    parser.add_argument('dest')
+    parser.add_argument("--src", help="Directory with HW XML files", )
+    parser.add_argument("--num", help="Number of XML files to process", type=int)
+    args = parser.parse_args()
+    if not args.src:
+        args.src = SRC_DIR
+    if not args.num:
+        args.num = 99999999999
 
 
-# Delete previous run
-for the_file in os.listdir(SRC_DIR):
-    file_path = os.path.join(SRC_DIR, the_file)
-    try:
-        if os.path.isfile(file_path):
-            os.unlink(file_path)
-    except Exception as e:
-        print(e)
+def delete_previous():
+    '''Not totally sure why this exists'''
+    global args
+    for the_file in os.listdir(args.src):
+        file_path = os.path.join(args.src, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(e)
 
-
-def getXmlFiles(path):
-    result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(path) for f in filenames if os.path.splitext(f)[1] == '.xml']
+def get_xml_files(path):
+    '''Return a list of files from the src dir'''
+    result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(path) for f in filenames if
+              os.path.splitext(f)[1] == '.xml']
     return result
 
-def simplifyXml(file):
-    output = to_plaintext(file)
+
+def simplify_xml(file):
+    output = l2p.to_plaintext(file)
     filename = os.path.basename(file)
-    name,ext = filename.split('.')
-    new_name = name+'.txt'
-    with open(SRC_DIR + new_name, "w") as text_file:
+    name, ext = filename.split('.')
+    new_name = name + '.txt'
+    with open(args.src + new_name, "w") as text_file:
         text_file.write(output)
 
-def asDict(file):
+
+def file_as_dict(file):
     line = {}
-    stop_split = file.index('.xml')
-    line["text"] = legacy_to_plaintext.to_plaintext(file)
+    line["text"] = l2p.to_plaintext(file)
     return line
 
+def asset_id_from_filename(file):
+    head, tail = os.path.split(file)
+    name, ext = tail.split('.')
+    return name
 
-
-def files_to_jsonl(IN_PATH):
-    all_files = getXmlFiles(IN_PATH)
-    count = 1
-    stop_at = 100000000000
-    #printProgressBar(0, 15000, prefix='Progress:', suffix='Complete', length=50)
-
-    with open(DEST_FILE, 'w') as outfile:
-
-        for i, file in enumerate(all_files):
-            r = asDict(file)
-
-            head, tail = os.path.split(file)
-            asset_id, ext = tail.split('.')
-            r['id'] = asset_id
-            md = evn_api.get_metadata(asset_id)
-            # if (not md):
-            #     # Skip empties
-            #     continue
-
-            combined = {**r, **md}
-
-            outfile.write(json.dumps(combined)+'\n')
-            if (count == stop_at):
-                exit()
-            if count % 20 == 0:
+def files_to_jsonl(src, dest, num):
+    with open(dest, 'w') as outfile:
+        for i, file in enumerate(get_xml_files(src)):
+            asset_plaintext = file_as_dict(file)
+            asset_composite = {**asset_plaintext, **evn_api.get_metadata(asset_id_from_filename(file))}
+            outfile.write(json.dumps(asset_composite) + '\n')
+            if num & (i+1) == num:
+                print('*', end='', flush=True)
+                return
+            elif (i+1) % 20 == 0:
                 print('.', end='', flush=True)
-                #printProgressBar(i + 1, 150000, prefix='Progress:', suffix='Complete', length=50)
-
-            count += 1
-
-
-# Print iterations progress
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
-    """
-    Call in a loop to create terminal progress bar
-    @params:
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
-    """
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = '\r')
-    # Print New Line on Complete
-    if iteration == total:
-        print()
-
 
 
 if __name__ == "__main__":
-    print("Source dir is: " + SRC_DIR)
-    print("Dest file is: "+DEST_FILE)
-    files_to_jsonl(SRC_DIR)
+    process_args()
+    print("Source dir is: " + args.src)
+    print("Dest file is: " + args.dest)
+    if args.num:
+        print("Files to process: "+str(args.num))
+    #delete_previous()
+    files_to_jsonl(args.src, args.dest, args.num)
