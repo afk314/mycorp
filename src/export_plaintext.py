@@ -67,53 +67,57 @@ def load_entity_map():
     for line in lines:
         hwcv_id, phrase = line.split("\t")
         # Build the regexp
-        r_e = re.compile(r' {0} '.format(phrase))
-        map[phrase] = hwcv_id
+        r_e = re.compile(r'\b{0}\b'.format(phrase))
+        inner = {
+            'id': hwcv_id,
+            're': r_e,
+            'phrase' : phrase
+        }
+        map[phrase] = inner
 
     return map
 
 def normalize(entity_map,asset):
-    for p in entity_map.keys():
-        if len(p) < 5:
+    for replace_obj in entity_map.values():
+        if len(replace_obj['phrase']) < 5:
             continue
-        #print("swapping: "+p+" for "+entity_map[p])
-        asset['text'], count = re.subn(r'\b{0}\b'.format(p), ' '+entity_map[p]+' ', asset['text'])
-        #if count>0:
-            #print("Substituted id for: "+p)
+        asset['text'], count = re.subn(replace_obj['re'], ' '+replace_obj['id']+' ', asset['text'])
     return asset
 
 def merge_asset_metadata(asset, metadata):
     try:
         if metadata['concepts']:
+            inline_concepts = ''
             for concept in metadata['concepts']:
-                asset['text'] = 'hwcv_'+str(concept)+' hwcv_'+str(concept)+' '+asset['text']
+                inline_concepts = 'hwcv_'+str(concept)+' hwcv_'+str(concept)+' '+inline_concepts
+            asset['text'] = inline_concepts+' '+asset['text']
     except KeyError:
-        print("skipping..")
+        pass
     return {**asset, **metadata}
 
 def files_to_jsonl(src, dest, num):
     entity_map = load_entity_map()
 
     with open(dest, 'w') as outfile:
+        overall_time = 0.0
         start_time = time.time()
         for i, file in enumerate(get_xml_files(src)):
             asset_plaintext = file_as_dict(file)
             asset = normalize(entity_map, asset_plaintext)
             metadata = evn_api.get_metadata(asset_id_from_filename(file))
 
-
-            #asset_composite = {**asset_plaintext, **evn_api.get_metadata(asset_id_from_filename(file))}
-
             asset_composite = merge_asset_metadata(asset, metadata)
+            asset_composite['id'] = asset_id_from_filename(file)
 
             outfile.write(json.dumps(asset_composite) + '\n')
+
             if num & (i+1) == num:
                 print('*', end='', flush=True)
                 return
-            elif (i+1) % 2 == 0:
-                print('.', end='', flush=True)
-                print(str(time.time() - start_time/2) +" per doc")
-                start_time = time.time()
+            elif (i+1) % 20 == 0:
+                now = time.time()
+                elapsed = now-start_time
+                print(str(elapsed/i+1) +" per doc")
 
 
 if __name__ == "__main__":

@@ -28,7 +28,7 @@ def get_page(asset_id):
 
 def drop_unnecessary(metadata):
     """Remove some unnecessary metadata field, typically dependent properties or those not interesting right now"""
-    remove = ['_id', 'content_asset_id', 'id', 'last_updated', 'codewords', 'asset_relations', 'facets',
+    remove = ['_id', 'content_asset_id', 'last_updated', 'codewords', 'asset_relations', 'facets',
               'behaviorChange', 'codes', 'keywords', 'emr_max_age', 'emr_min_age', 'specialties', 'cached', 'hash']
     for remove_me in remove:
         del metadata[remove_me]
