@@ -133,8 +133,9 @@ def worker(args):
     entity_map = args[2]
     num = args[3]
     dupe_concepts = args[4]
+    start_time = time.time()
     for i, file in enumerate(ids):
-        print("Looking at file: "+str(i))
+        #print("Looking at file: "+str(i))
         asset_plaintext = file_as_dict(file)
         asset = normalize(entity_map, asset_plaintext)
         metadata = evn_api.get_metadata(asset_id_from_filename(file))
@@ -191,7 +192,7 @@ def threaded_files_to_jsonl(src, dest, num_to_process, num_threads, dupe_concept
     elapsed = now - start_time
     print(str(elapsed / num_to_process) + " per doc")
 
-    print("Should be done..")
+    #print("Should be done..")
     print(all_output)
     print(len(all_output))
     write_jsonl(all_output, dest)
