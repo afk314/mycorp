@@ -1,22 +1,19 @@
-
-
-
-
-#
-#
-#  DEPRECATED XML
-#
-
-
-import os, nltk
+import json
+import os
 import lxml.etree as ET
+import argparse
+import requests
+
+
+def load_ml_config():
+    with open('./config/mlconfig.json') as json_data_file:
+        data = json.load(json_data_file)
+    return data
+
 
 TEXT_DIR = 'output/'
 IN_PATH = "/Users/akimball/dev/content/hwxml/xml"
 OUT_PATH = '/Users/akimball/dev/python/projects/first/simplified_content'
-
-xslt= ET.parse('/home/akimball/dev/oxygen/nlp/xslt/strip-prebuilt.xsl')
-transform = ET.XSLT(xslt)
 
 def getXmlFiles(path):
     result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(path) for f in filenames if os.path.splitext(f)[1] == '.xml']
@@ -35,9 +32,12 @@ def simplifyXml(file):
         text_file.write(transformed)
 
 
-def buildCorpus():
-    from nltk.corpus import PlaintextCorpusReader
-    return PlaintextCorpusReader(TEXT_DIR, '.*')
+files = getXmlFiles(IN_PATH)
+for file in files:
+    filename = os.path.basename(file);
+    hwid, ext = filename.split('.')
+
+
 
 
 

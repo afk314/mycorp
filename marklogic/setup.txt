@@ -1,0 +1,20 @@
+curl -v -X POST  --anyauth -u admin:dillweed \
+  --header "Content-Type:application/json" \
+  -d '{"rest-api": { "name": "asset_server", "port": "8011", "database": "assets", "modules-database": "asset_server_modules" } }' \
+  http://linux:8002/v1/rest-apis
+
+  curl -v -X PUT --anyauth -u admin:dillweed \
+  --header "Content-Type:application/json" \
+  -d '{"collection-lexicon":true}' \
+  http://linux:8002/manage/v2/databases/assets/properties
+
+  curl -v -X POST  --anyauth -u admin:dillweed \
+  --header "Content-Type:application/json" \
+  -d '{"user-name":"rest-writer", "password": "x", "role": ["rest-writer"]}' \
+  http://linux:8002/manage/v2/users
+
+  curl -v -X POST  --anyauth -u admin:dillweed \
+  --header "Content-Type:application/json" \
+  -d '{"user-name":"rest-admin", "password": "x", "role": ["rest-admin"]}' \
+  http://linux:8002/manage/v2/users
+

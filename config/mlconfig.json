@@ -1,0 +1,3 @@
+{
+"hostname": "linux", "username": "admin", "password": "dillweed", "protocol": "http", "port": 8000, "management-port": 8002, "root": "manage", "version": "v2", "client-version": "v1"
+}

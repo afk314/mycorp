@@ -1,0 +1,10 @@
+-username
+admin
+-password
+dillweed
+-host
+linux
+-port
+8000
+-database
+assets

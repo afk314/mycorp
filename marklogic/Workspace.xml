@@ -1,0 +1,80 @@
+<export><workspace name="Workspace"><query name="hwxml template" focus="false" listorder="1" taborder="1" active="true" database="15499958395254159977" server="16875507190944489245" database-name="assets" server-name="asset_server" mode="javascript">declareUpdate();
+var tde = require ("/MarkLogic/tde.xqy");
+
+var template = xdmp.toJSON({
+  "template":{
+    "description":"HW XML Template",
+    "context":"/hw.doc",
+    "collections": ["hwxml"],
+    "vars":[
+      {
+        "name":"concept_schema",
+        "val":"\"http://metadata.healthwise.org/concept/concept_schema#\""
+      },
+      {
+        "name":"content_asset_schema",
+        "val":"\"http://metadata.healthwise.org/content/content_asset_schema#\""
+      },
+      {
+        "name":"rdf",
+        "val":"\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\""
+      },
+      {
+        "name":"rdfs",
+        "val":"\"http://www.w3.org/2000/01/rdf-schema#\""
+      },
+      {
+        "name":"skos",
+        "val":"\"http://www.w3.org/2004/02/skos/core#\""
+      },
+      {
+        "name":"dct",
+        "val":"\"http://purl.org/dc/terms/\""
+      },
+      {
+        "name":"content_asset_data",
+        "val":"\"http://metadata.healthwise.org/content/content_asset_data#\""
+      },
+      {
+        "name":"id",
+        "val":"fn:concat(@hwid-content)"
+      },
+      
+    ],
+    "triples":[
+      {
+        "subject":{
+          "val":"sem:iri(concat($content_asset_data,$id))",
+        },
+        "predicate":{
+          "val":"sem:iri(concat($content_asset_schema,'asset_id'))"
+        },
+        "object":{
+          "val":"$id"
+        }
+      }
+    ]
+  }
+}
+                           );
+
+tde.templateInsert(
+  "hwxml_template.json" ,
+  template,
+  xdmp.defaultPermissions(),
+  ["TDE"]
+)  
+
+
+         </query><query name="Query 2" focus="false" listorder="2" taborder="2" active="true" database="4928840365639141314" server="385134086483414926" database-name="Schemas" server-name="App-Services" mode="sparql">SELECT * 
+WHERE { 
+   ?s ?p ?o } </query><query name="Query 3" focus="false" listorder="3" taborder="" active="false" database="4928840365639141314" server="385134086483414926" database-name="Schemas" server-name="App-Services" mode="sparql">SELECT * 
+WHERE { 
+   ?s ?p ?o } </query><query name="All triples" focus="false" listorder="4" taborder="2" active="true" database="15499958395254159977" server="16875507190944489245" database-name="assets" server-name="asset_server" mode="sparql">## query
+select * where {
+  ?s ?p ?o
+}</query><query name="Force reindex" focus="true" listorder="5" taborder="4" active="true" database="15499958395254159977" server="16875507190944489245" database-name="assets" server-name="asset_server" mode="javascript">var tde = require("/MarkLogic/tde.xqy");
+
+tde.nodeDataExtract( 
+  [cts.doc( "/bg1006.xml" )]
+) </query></workspace></export>
