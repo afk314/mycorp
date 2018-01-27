@@ -141,7 +141,7 @@ def insert_document(id,payload):
     import requests
     from requests.auth import HTTPDigestAuth
 
-    req = requests.Request('PUT', url, headers=headers, data=json.dumps(payload), auth=HTTPDigestAuth('admin', 'dillweed'),params=get_put_params(id))
+    req = requests.Request('PUT', url, headers=headers, data=json.dumps(payload), auth=HTTPDigestAuth('rest-writer', 'x'),params=get_put_params(id))
     prepared = req.prepare()
 
     pretty_print_POST(prepared)
