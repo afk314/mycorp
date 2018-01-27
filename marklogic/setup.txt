@@ -1,20 +1,26 @@
-curl -v -X POST  --anyauth -u admin:dillweed \
+curl -v -X POST  --anyauth -u admin:nopass \
   --header "Content-Type:application/json" \
-  -d '{"rest-api": { "name": "asset_server", "port": "8011", "database": "assets", "modules-database": "asset_server_modules" } }' \
+  -d '{"rest-api": { "name": "hw", "port": "8011", "database": "assets", "modules-database": "asset_server_modules" } }' \
   http://linux:8002/v1/rest-apis
 
-  curl -v -X PUT --anyauth -u admin:dillweed \
+  curl -v -X PUT --anyauth -u admin:nopass \
   --header "Content-Type:application/json" \
   -d '{"collection-lexicon":true}' \
   http://linux:8002/manage/v2/databases/assets/properties
 
-  curl -v -X POST  --anyauth -u admin:dillweed \
+  curl -v -X POST  --anyauth -u admin:nopass \
   --header "Content-Type:application/json" \
   -d '{"user-name":"rest-writer", "password": "x", "role": ["rest-writer"]}' \
   http://linux:8002/manage/v2/users
 
-  curl -v -X POST  --anyauth -u admin:dillweed \
+  curl -v -X POST  --anyauth -u admin:nopass \
   --header "Content-Type:application/json" \
   -d '{"user-name":"rest-admin", "password": "x", "role": ["rest-admin"]}' \
   http://linux:8002/manage/v2/users
 
+
+
+$ ~/dev/marklogic/mlcp-9.0.4/bin/mlcp.sh import -options_file conn.txt -output_uri_replace ".*\/,'',\.xml,''" -input_file_type documents -document_type xml -output_collections "hwxml,11.5" -output_uri_prefix "http://content.healthwise.org/xml/" -input_file_path ~/dev/content/hwxml/xml
+
+
+curl -v -X GET --anyauth -u admin:nopass --header "Content-Type:application/json" http://linux:8011/v1/search?collection=hwjson&format=json 
