@@ -57,8 +57,14 @@ def categories_to_int(metadata):
     #return list(category_ids)
     if not category_ids:
         return None
-    l = list(category_ids)
-    return l
+    consumer = []
+    clinical = []
+    for cat in category_ids:
+        if cat < 1499:
+            consumer.append(cat)
+        else:
+            clinical.append(cat)
+    return (consumer,clinical)
 
 
 def genders_to_int(metadata):
@@ -106,8 +112,12 @@ def clean_metadata(metadata):
     metadata['concepts'] = concept_ids
 
     # Handle nested categories
-    category_ids = categories_to_int(metadata)
-    metadata['categories'] = category_ids
+
+
+    consumer, clinical = categories_to_int(metadata)
+    metadata['consumer_cats'] = consumer
+    metadata['clinical_cats'] = clinical
+    del metadata['categories']
 
     # Handle Gender
     genders = genders_to_int(metadata)

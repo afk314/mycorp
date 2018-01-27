@@ -91,6 +91,72 @@ def normalize(entity_map,asset):
         asset['text'], count = re.subn(replace_obj['re'], replace_obj['id'], asset['text'])
     return asset
 
+def put(self, uri, body, transaction=None):
+    "Send a file to the remote modules database. URIs are prepended with the root."
+    params = {"uri": self.root + uri}
+    params.update(self.permissions)
+    if transaction is not None:
+        params['txid'] = transaction
+    if self.database is not None:
+        params['database'] = self.database
+    headers = {}
+    r = requests.put(
+        self.url + "/v1/documents",
+        params=params,
+        headers=headers,
+        auth=self.auth,
+        data=body
+    )
+    if r.status_code > 299 or r.status_code < 200:
+        raise Exception(r.status_code, r.text)
+    return ("PUT", r.status_code, params['uri'])
+
+
+def get_put_params(id):
+    return {
+        'uri': 'http://content.healthwise.org/json/' + id +'.json',
+        'collection': 'hwjson'
+    }
+
+def pretty_print_POST(req):
+    """
+    At this point it is completely built and ready
+    to be fired; it is "prepared".
+
+    However pay attention at the formatting used in
+    this function because it is programmed to be pretty
+    printed and may differ from the actual request.
+    """
+    print('{}\n{}\n{}\n\n{}'.format(
+        '-----------START-----------',
+        req.method + ' ' + req.url,
+        '\n'.join('{}: {}'.format(k, v) for k, v in req.headers.items()),
+        req.body,
+    ))
+
+def insert_document(id,payload):
+    print("loading: "+id)
+    url = 'http://linux:8011/LATEST/documents'
+    headers = {'content-type': 'application/json'}
+    import requests
+    from requests.auth import HTTPDigestAuth
+
+    req = requests.Request('PUT', url, headers=headers, data=json.dumps(payload), auth=HTTPDigestAuth('admin', 'dillweed'),params=get_put_params(id))
+    prepared = req.prepare()
+
+    pretty_print_POST(prepared)
+
+    s = requests.Session()
+    res = s.send(prepared)
+
+
+    print(res.status_code)
+
+
+
+
+
+
 def merge_asset_metadata(asset, metadata, dupe_concepts):
     try:
         if metadata['concepts']:
@@ -136,13 +202,15 @@ def worker(args):
     start_time = time.time()
     for i, file in enumerate(ids):
         #print("Looking at file: "+str(i))
+        id = asset_id_from_filename(file)
         asset_plaintext = file_as_dict(file)
         asset = normalize(entity_map, asset_plaintext)
-        metadata = evn_api.get_metadata(asset_id_from_filename(file))
+        metadata = evn_api.get_metadata(id)
 
         asset_composite = merge_asset_metadata(asset, metadata, dupe_concepts)
-        asset_composite['id'] = asset_id_from_filename(file)
+        asset_composite['id'] = id
 
+        #insert_document(id, asset_composite)
         buffer.append(asset_composite)
 
         if num & (i + 1) == num:
